@@ -8,6 +8,10 @@ export const routes = [{
   path: '/products',
   name: 'Products Listing',
   component: () => import('./pages/ProductListing.vue'),
+},{
+  path: '/:pathMatch(.*)',
+  name: 'Error Page',
+  component: () => import('./pages/Error.vue'),
 }];
 
 export const router = createRouter({
