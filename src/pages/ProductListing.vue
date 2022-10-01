@@ -35,6 +35,23 @@ const fetchCategories = async () => {
     console.log(`An error occured - ${e}`)
   }
 }
+
+// Run functions when the component is mounted
+onMounted(() => {
+  fetchProducts()
+  fetchCategories()
+})
+
+// PAGINATION
+// * Chiselstrike: next_page and prev_page from get endpoints
+// go to previous page
+function prevPage(){
+  if(nextPageFilter.value) fetchProducts(nextPageFilter.value.replace(`${apiUrl}/products?`,''))
+}
+// go to next page
+function nextPage(){
+  if(prevPageFilter.value) fetchProducts(prevPageFilter.value.replace(`${apiUrl}/products?`,''))
+}
 </script>
 
 <template>
