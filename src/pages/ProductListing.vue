@@ -1,13 +1,27 @@
 <script setup>
 import { apiUrl } from '../vars';
 import ProductCard from '../components/ProductCard.vue';
+
 import { onMounted, ref, watch, computed } from 'vue';
 import axios from 'axios';
+
 let products = ref([]);
 let categories = ref([]);
+// let contentFetchFilters = ref ({"page_size": 2, "sort": "price"});
 let contentFetchFilters = ref ({});
 let nextPageFilter = ref([]);
 let prevPageFilter = ref([]);
+let sortingProperties = ref([
+  {name: 'name', attribute: 'name'},
+  {name: 'High-Low Price', attribute: '-price'},
+  {name: 'Low-High Price', attribute: 'price'},
+  {name: 'Last Added', attribute: 'createdAt'},
+  {name: 'First Added', attribute: '-createdAt'}
+])
+let selectedSortingProperty = ref('');
+let perPageOptions = ref(['2','3','5','8','10'])
+let perPage = ref(10)
+
 /**
  * @description Fetches products from Chiselstrike
  * @param {String | null} filters 
@@ -124,6 +138,37 @@ function prevPage(){
 function nextPage(){
   if(prevPageFilter.value) fetchProducts(prevPageFilter.value.replace(`${apiUrl}/products?`,''))
 }
+
+// * Chiselstrike: page_size endpoint attribute
+watch(perPage, (itemsCount) => {
+  let currentFiltersQuery = contentFetchFilters.value, sortProperty;
+
+  if(itemsCount) {
+    sortProperty = Object.assign(currentFiltersQuery, {'page_size': parseInt(itemsCount)})
+  } else {
+    delete sortProperty['page_size']
+  }
+  
+  contentFetchFilters.value = sortProperty;
+  let newRequestFilters = stringifyFilters(sortProperty);
+  fetchProducts(newRequestFilters)
+})
+
+// SORTING
+// * Chiselstrike: order ascending and descending
+watch(selectedSortingProperty, (newSortingProperty) => {
+  let currentFiltersQuery = contentFetchFilters.value, sortProperty;
+
+  if(newSortingProperty) {
+    sortProperty = Object.assign(currentFiltersQuery, {'sort': newSortingProperty})
+  } else {
+    delete sortProperty['sort']
+  }
+  
+  contentFetchFilters.value = sortProperty;
+  let newRequestFilters = stringifyFilters(sortProperty);
+  fetchProducts(newRequestFilters)
+})
 </script>
 
 <template>
