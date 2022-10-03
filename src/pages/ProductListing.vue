@@ -1,4 +1,5 @@
 <script setup>
+import SiteNavigation from '../components/SiteNavigation.vue';
 import { apiUrl } from '../vars';
 import ProductCard from '../components/ProductCard.vue';
 
@@ -172,4 +173,141 @@ watch(selectedSortingProperty, (newSortingProperty) => {
 </script>
 
 <template>
+  <!-- header & nav -->
+  <header class="flex flex-col w-full space-x-3">
+    <SiteNavigation></SiteNavigation>
+
+    <div class="flex w-full px-12">
+      <!-- site search -->
+      <div class="flex-1 flex justify-center"> 
+        <form @submit.prevent="search()">
+          <div class="form-control">
+            <div class="input-group">
+              <input type="text" placeholder="Search…" class="input input-bordered w-96" v-model="searchQuery" />
+              <button class="btn btn-square">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- site search end -->
+
+      <!-- sort -->
+      <div class="ml-4">
+        <div class="form-control w-full max-w-xs">
+          <select 
+            id="sort"
+            v-model="selectedSortingProperty"
+            class="select select-bordered w-full max-w-xs"
+          >
+            <option value="" selected>Sort By</option>
+            <option
+              v-for="(cat, key) of sortingProperties"
+              :key="key"
+              :value="cat.attribute"
+            >{{ cat.name }}</option>
+          </select>
+        </div>
+      </div>
+      <!-- sort end -->
+    </div>
+
+  </header>
+
+  <!-- main content -->
+  <main class="flex flex-row w-full p-4">
+
+    <!-- filter -->
+    <div class="sticky mt-3 top-4">
+      <ul class="flex flex-col max-w-[270px] p-4 border-r-2 border-gray-400 min-h-full space-y-2 bg-base-100">
+        <li>
+          <h4>
+            FILTERS
+          </h4>
+        </li>
+        <li>
+          <label for="price" class="my-2 font-light font-mono">Price:</label>
+          <div class="flex ml-2 space-x-2">
+            <input type="text" class="w-12 border-2 border-slate-400 font-mono text-md" v-model.number="price.from" @keyup="updatePrices()">
+            <div class="m-x-4"> to </div>
+            <input type="text" class="w-12 border-2 border-slate-400" v-model.number="price.to" @keyup="updatePrices()">
+          </div>
+        </li>
+        <li>
+          <div class="mt-2 font-light font-mono">Categories:</div>
+          <div v-if="categories.length">
+            <ul class="ml-2 p-2">
+              <li class="flex justify-between">
+                <label for="all font-mono text-md"> All </label>
+                <input type="radio" value="all" v-model="selectedCategory">
+              </li>
+              <li v-for="(category, key) of categories" class="flex justify-between">
+                <label :for="category.name" class="mr-4 font-mono text-md">{{ category.name }}</label>
+                <input
+                  type="radio"
+                  :id="category.name"
+                  :value="category.name"
+                  v-model="selectedCategory"
+                >
+              </li>
+            </ul>
+          </div>
+          <div v-else>
+            Loading categories
+          </div>
+        </li>
+      </ul>
+    </div>
+    <!-- filter end -->
+    
+    <!-- products listing -->
+    <div class="flex flex-wrap flex-1">
+      <div class="w-full flex flex-wrap p-4" v-if="products.length">
+        <ProductCard
+        v-for="(product, key) of products"
+        :key="key"
+        :product="product"
+        ></ProductCard>
+      </div>
+
+      <div class="flex flex-col p-4" v-else>
+        <p class="text-3xl text-center">
+          No Items
+        </p>
+      </div>
+      
+      <!-- pagination -->
+      <div class="flex justify-center p-4 m-2 w-full">
+        <!-- pagination -->
+        <div class="btn-group">
+          <button class="btn" @click="prevPage()">« Prev</button>
+          <button class="btn" @click="nextPage()">Next »</button>
+        </div>
+        <!-- pagination end -->
+
+        <!-- per page -->
+        <div class="ml-4">
+          <div class="form-control w-full max-w-xs">
+            <select 
+              id="sort"
+              v-model="perPage"
+              class="select select-bordered"
+            >
+              <option
+                v-for="(item, key) of perPageOptions"
+                :key="key"
+                :value="item"
+              >{{ item }}</option>
+            </select>
+          </div>
+        </div>
+        <!-- per page end -->
+      </div>
+      <!-- pagination end -->
+    </div>
+    <!-- products listing end -->
+
+  </main>
+  <!-- main content end -->
 </template>
